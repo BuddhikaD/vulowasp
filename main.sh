@@ -41,11 +41,39 @@ installOwaspJuiceShop(){
     echo "Running Owasp Juice shop at http://$HOST:3000"
 }
 
+installNodegoat(){
+    install_requirements
+    git clone https://github.com/OWASP/NodeGoat.git
+    cd NodeGoat
+    docker-compose build
+    docker-compose up -d
+    echo "Running Nodegoat at http://$HOST:4000"
+    cd ../
+}
+
+installDVGraphql(){
+    install_requirements
+    docker pull dolevf/dvga
+    docker run -d -p 5000:5000 -e WEB_HOST=0.0.0.0 dolevf/dvga
+    echo "Running Damm Vulnerable GraphQL at http://$HOST:5000"
+}
+
+installOAuth(){
+    install_requirements
+    git clone https://github.com/koenbuyens/Vulnerable-OAuth-2.0-Applications
+    cd Vulnerable-OAuth-2.0-Applications/insecureapplication
+    docker-compose up -d
+    echo "Running attacker: http://$HOST:1337, photoprint: http://$HOST:3000, gallery http://$HOST:3005"
+    cd ..
+}
+
 cleanup(){
     sudo docker stop $(docker ps -a -q)
     sudo docker images -a
     sudo docker rmi $(docker images -a -q)
     sudo docker system prune -a -f
+    sudo rm -rf NodeGoat
+    sudo rm -rf Vulnerable-OAuth-2.0-Applications
 }
 
 printf """$green
@@ -62,7 +90,10 @@ main(){
     echo -ne "
     $(colorGreen '1)') DVWA
     $(colorGreen '2)') Owasp Juice Shop
-    $(colorGreen '3)') Clean
+    $(colorGreen '3)') Nodegoat
+    $(colorGreen '4)') Damm Vulnerable GraphQL
+    $(colorGreen '5)') Vulnerable OAuth 2.0 Applications
+    $(colorGreen '6)') Clean
     $(colorGreen '0)') EXIT
 
     $(colorGreen 'Choose an option to run:') 
@@ -71,7 +102,10 @@ main(){
     case $a in
         1) installDvwa ; main ;;
         2) installOwaspJuiceShop ; main ;;
-        3) cleanup ; main ;;
+        3) installNodegoat ; main ;;
+        4) installDVGraphql ; main ;;
+        5) installOAuth ; main ;;
+        6) cleanup ; main ;;
         0) exit 0 ;;
     *) echo -e $red"Wrong option."$clear;
     esac
