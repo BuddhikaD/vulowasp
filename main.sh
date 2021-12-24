@@ -42,9 +42,10 @@ installOwaspJuiceShop(){
 }
 
 cleanup(){
-    sudo docker ps -a -q
-    sudo docker images
-    sudo docker system prune -f
+    sudo docker stop $(docker ps -a -q)
+    sudo docker images -a
+    sudo docker rmi $(docker images -a -q)
+    sudo docker system prune -a -f
 }
 
 printf """$green
