@@ -35,24 +35,43 @@ installDvwa(){
     echo "Running Dvwa at http://$HOST:8001"
 }
 
-printf """$green
-            .__
-___  ____ __|  |   ______  _  _______    ____________
-\  \/ /  |  \  |  /  _ \ \/ \/ /\__  \  /  ___/\____ \
- \   /|  |  /  |_(  <_> )     /  / __ \_\___ \ |  |_> >
-  \_/ |____/|____/\____/ \/\_/  (____  /____  >|   __/
-                                     \/     \/ |__|
+installOwaspJuiceShop(){
+    install_requirements
+    sudo docker run -d --rm -p 3000:3000 bkimminich/juice-shop
+    echo "Running Owasp Juice shop at http://$HOST:3000"
+}
 
+cleanup(){
+    sudo docker ps -a -q
+    sudo docker images
+    sudo docker system prune -f
+}
+
+printf """$green
+            .__                                        
+___  ____ __|  |   ______  _  _______    ____________  
+\  \/ /  |  \  |  /  _ \ \/ \/ /\__  \  /  ___/\____ \ 
+ \   /|  |  /  |_(  <_> )     /  / __ \_\___ \ |  |_> >
+  \_/ |____/|____/\____/ \/\_/  (____  /____  >|   __/ 
+                                     \/     \/ |__|                                                              
+                                                                                                                    
 """
 
 main(){
     echo -ne "
     $(colorGreen '1)') DVWA
+    $(colorGreen '2)') Owasp Juice Shop
+    $(colorGreen '3)') Clean
+    $(colorGreen '0)') EXIT
+
+    $(colorGreen 'Choose an option to run:') 
     "
     read a
     case $a in
         1) installDvwa ; main ;;
-    0) exit 0 ;;
+        2) installOwaspJuiceShop ; main ;;
+        3) cleanup ; main ;;
+        0) exit 0 ;;
     *) echo -e $red"Wrong option."$clear;
     esac
 }
